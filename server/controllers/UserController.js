@@ -2,10 +2,11 @@
 
 const {User} = require('../models')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const {jwtSign,jwtVerify} = require('../helpers/jwt')
+const {OAuth2Client} = require('google-auth-library');
 
 class UserController {
-    static register (req, res) {
+    static register (req, res, next) {
         const newUser = {
             name: req.body.name,
             email: req.body.email,
@@ -16,10 +17,10 @@ class UserController {
             return res.status(201).json(data)
         })
         .catch(function(err){
-            return res.status(500).json({message: err})
+            next(err)
         })
     }
-    static login (req, res) {
+    static login (req, res, next) {
         const email = req.body.email
         const password = req.body.password
         User.findOne({
@@ -27,16 +28,15 @@ class UserController {
         })
         .then(function(data){
             if(!data) {
-                return res.status(404).json({message: 'Email not found!'})
+                throw {
+                    name: "Validation_error",
+                    statusCode: 404,
+                    message: 'Email not found!'
+                }
             } else {
                 if (bcrypt.compareSync(password, data.password)) {
-                    const token = jwt.sign
-                    (
-                        {
-                            id: data.id,
-                            email: data.email
-                        },
-                        "jwtScret"
+                    const token = jwtSign(
+                        { id: data.id, email: data.email}
                     )
                     return res.status(200).json({access_token: token})
                 } else {
@@ -45,10 +45,46 @@ class UserController {
             }
         })
         .catch(function(err){
-            return res.status(500).json({message: err})
+            // console.log(err)
+            next(err)
         })
-
-    }   
+    }
+    static googleLogin (req,res, next) {
+        const id_token = req.body.id_token
+        const client = new OAuth2Client(process.env.CLIENT_ID)
+        let payload;
+        client.verifyIdToken({
+            idToken: id_token,
+            audience: process.env.CLIENT_ID
+        })
+        .then(function(ticket){
+            payload = ticket.getPayload();
+            const userid = payload['sub'];
+            return User.findOne({
+                where: 
+                {email: payload["email"]}
+            })
+        })
+        .then(function(user){
+            if(user) {
+                return user
+            } else {
+                let dataUser = {
+                    username: payload['name'],
+                    email: payload['email'],
+                    password: "bvejvbejb"
+                }
+                return User.create(dataUser)
+            }
+        })
+        .then(function(data){
+            const token = jwtSign({ id: data.id, email: data.email})
+            return res.status(200).json({access_token: token})
+        })
+        .catch(function(err){
+            next(err)
+        })
+    }
 }
 
 module.exports = UserController

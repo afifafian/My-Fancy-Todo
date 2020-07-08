@@ -1,51 +1,65 @@
 "use strict"
 
 const {Todo} = require('../models')
+const getQRCode = require('../helpers/thirdparty')
 
 class TodoController {
-    static addTodo (req,res) {
+    static addTodo (req,res, next) {
+        let todo;
+        const userId = req.userData.id
         let newTodo =  {
             title: req.body.title,
             description: req.body.description,
             status: req.body.status,
-            due_date: req.body.due_date
+            due_date: req.body.due_date,
+            UserId: userId
         }
-        if (!newTodo.title || !newTodo.description || !newTodo.status || !newTodo.due_date) {
-            return res.status(400).json({message: 'Data tidak boleh ada yang kosong!'})
-        } else {
-            Todo.create(newTodo)
-            .then(function(data){
-                return res.status(201).json(data)
-            })
-            .catch(function(err){
-                return res.status(500).json({message: err})
-            })
-        }
+        Todo.create(newTodo)
+        .then(function(data){
+            todo = data
+            const qrCode = getQRCode(data)
+            return qrCode
+        })
+        .then(function(result){
+            return res.status(201).json({result ,todo})
+        })
+        .catch(function(err){
+            next(err)
+        })
     }
-    static read (req, res) {
-        Todo.findAll({order:[['id', 'ASC']]})
+    static read (req, res, next) {
+        const id = req.userData.id
+        Todo.findAll({
+            where: {UserId: id},
+            order:[['id', 'ASC']]
+        })
         .then(function(data){
             return res.status(200).json(data)
         })
         .catch(function(err){
-            return res.status(500).json({message: err})
+            console.log(err)
+            next(err)
         })
     }
-    static getId (req, res) {
+    static getId (req, res, next) {
         const id = +req.params.id
         Todo.findByPk(id)
         .then(function(data){
             if (!data) {
-                return res.status(404).json({message:'404 error not found'})
+                throw {
+                    name: "Validation_error",
+                    statusCode: 404,
+                    message: `Todo with ID: ${id} is not found!`
+                }
             } else {
                 return res.status(200).json(data)
             }
         })
         .catch(function(err){
-            return res.status(500).json({message: err})
+            next(err)
         })
     }
-    static edit (req, res) {
+    static edit (req, res, next) {
         const id = +req.params.id
         let updateTodo =  {
             title: req.body.title,
@@ -53,30 +67,38 @@ class TodoController {
             status: req.body.status,
             due_date: req.body.due_date
         }
-        if (!updateTodo.title || !updateTodo.description || !updateTodo.status || !updateTodo.due_date) {
-            return res.status(400).json({message: 'Data tidak boleh ada yang kosong!'})
-        } else {
-            Todo.update(updateTodo, {where: {id}})
-            .then(function(data){
-                return res.status(200).json(data)
-            })
-            .catch(function(err){
-                return res.status(500).json({message: err})
-            })
-        }
-    }
-    static delete (req, res) {
-        const id = +req.params.id
-        Todo.destroy({ where: {id} })
+        Todo.update(updateTodo, {where: {id}})
         .then(function(data){
-            if (data) {
-                return res.status(200).json(data)
+            if (data[0] === 1) {
+                return res.status(200).json({message: 'Succesfully Updated Todo!'})
             } else {
-                return res.status(404).json({message:'404 error not found'})
+                throw {
+                    name: "Validation_error",
+                    statusCode: 404,
+                    message: `Book not found!`
+                }
             }
         })
         .catch(function(err){
-            return res.status(500).json({message: err})
+            next(err)
+        })
+    }
+    static delete (req, res, next) {
+        const id = +req.params.id
+        Todo.destroy({ where: {id} })
+        .then(function(data){
+            if (data[0] === 1) {
+                return res.status(200).json({message: 'Succesfully Deleted Todo!'})
+            } else {
+                throw {
+                    name: "Validation_error",
+                    statusCode: 404,
+                    message: `Todo with ID: ${id} is not found!`
+                }
+            }
+        })
+        .catch(function(err){
+            next(err)
         })
     }
 }

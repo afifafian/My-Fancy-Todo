@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <title>Fancy-Todo</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="cols-4">
+                <form class="register-form mt-3" onsubmit="afterRegister(event)">
+                    <h2>REGISTER</h2>
+                    <div class="form-group">
+                        <label for="exampleInputName1">Name</label>
+                        <input type="text" class="form-control" id="nameRegister">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input type="email" class="form-control" id="emailRegister" aria-describedby="emailHelp">
+                        <small id="emailHelpRegister" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input type="password" class="form-control" id="passwordRegister">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button> <br><br>
+                    <h4>already have an account? <a class="navbar-brand" href="#" onclick="processLogin()">Click here</a></h4>
+                </form>
+                <form class="login-form mt-3" onsubmit="afterLogin(event)">
+                    <h2>LOGIN</h2><br>
+                    <p id="error" ></p>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email address</label>
+                      <input type="email" class="form-control" id="emailLogin" aria-describedby="emailHelp">
+                      <small id="emailHelpLogin" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input type="password" class="form-control" id="passwordLogin">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <form class="add-form mt-3" onsubmit="afterAdd(event)">
+                    <h2>Add Book</h2><br>
+                    <a class="navbar-brand" href="" onclick="getTodoList()">Back to List</a>
+                    <p id="error" ></p>
+                    <div class="form-group">
+                      <label for="exampleInputTitle1">Title</label>
+                      <input type="text" class="form-control" id="addTitle" aria-describedby="emailHelp">
+                      <small id="addTitleHelp" class="form-text text-muted">This field is required.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputDescription1">Description</label>
+                        <input type="text" class="form-control" id="addDesc" aria-describedby="emailHelp">
+                        <small id="addDescHelp" class="form-text text-muted">This field is required.</small>  
+                    </div>
+                      <div class="form-group">
+                        <label for="exampleInputStatus1">Status</label>
+                        <input type="text" class="form-control" id="addStatus" aria-describedby="emailHelp">
+                        <small id="addStatusHelp" class="form-text text-muted">This field is required.</small>  
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputDueDate1">Due Date</label>
+                        <input type="text" class="form-control" id="addDueDate" aria-describedby="emailHelp">
+                        <small id="addDueDateHelp" class="form-text text-muted">This field is required.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="after-login mt-3">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">My Fancy Todo</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+              
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                      <a class="home" href="#">Home<span class="sr-only">(current)</span></a>
+                    </li> 
+                    <li class="nav-item">
+                      <a class="add-todo" href="#" onclick="addForm()" >Add Todo</a>
+                    </li>
+                    <!-- <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Options
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
+                    </li> -->
+                  </ul>
+                  <button id="logout" type="submit" class="btn btn-primary" onclick="afterLogout()" >Log Out</button>
+                </div>
+            </nav>
+            <h2>LIST TODO</h2>
+            <section class="todo-list">
+                <!-- <div class="col md-4 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Title</h5>
+                            <h6 class="card-title">Status</h6>
+                            <h6 class="card-title">Due Date</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Description</h6>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a href="#" class="card-link">Delete</a>
+                        </div>
+                    </div>
+                </div> -->
+            </section>
+        </div>
+    </div>
+    
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" 
+       integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" 
+       crossorigin="anonymous"></script> -->
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" 
+      crossorigin="anonymous">
+    </script>
+
+    <script src="main.js">
+
+    </script>
+</body>
+
+</html>
