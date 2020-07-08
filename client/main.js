@@ -93,15 +93,15 @@ function addForm() {
 }
 function afterAdd(event) {
     event.preventDefault()
-
+    
     $.ajax({
         method:"POST",
         url: "http://localhost:3000/todos/",
         data: {
-            title: fefe,
-            description: egeg,
-            status: ee,
-            due_date: gege
+            title: $("#addTitle").val(),
+            description: $("#addDesc").val(),
+            status: $("#addStatus").val(),
+            due_date: $("#addDueDate").val()
         },
         headers: {
             access_token: localStorage.token
@@ -109,7 +109,7 @@ function afterAdd(event) {
     })
     .done(function (todo) {
         // $(".todo-list").empty()
-        
+        for (let i = 0; i < todo.length; i++) {
             $(".todo-list").append(
                 `<div class="col md-4 mb-3">
                 <div class="card" style="width: 18rem;">
@@ -124,12 +124,18 @@ function afterAdd(event) {
                 </div>
             </div>`
             )
-         
+            $(".after-login").show()
+            $(".register-form").hide()
+            $(".login-form").hide()
+            $(".add-form").hide()
+        }
     })
     .fail(function (err) {
-        console.log(err, 'ERROR KETIKA GET TODO LIST')
+        console.log(err, 'ERROR KETIKA ADD TODO LIST')
     })
     .always(function (_) {
+        $(".after-login").show()
+        $(".add-form").hide()
     })
 }
 function afterLogout() {
