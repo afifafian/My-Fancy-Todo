@@ -228,11 +228,16 @@ function editForm(id, event) {
         }
     })
     .done(function(data){
+        const format = new Date(data.due_date)
+        const date = format.getDate() > 9 ? format.getDate(): "0" + String(format.getDate())
+        const month = format.getMonth()+1 > 9 ? format.getMonth()+1: "0" + String(format.getMonth()+1)
+        const year = format.getFullYear()
+        const fullDate = `${year}-${month}-${date}`
         $("#editId").val(data.id)
         $("#editTitle").val(data.title)
         $("#editDesc").val(data.description)
         $("#editStatus").val(data.status)
-        $("#editDueDate").val(data.due_date)
+        $("#editDueDate").val(fullDate)
     })
     .fail(function(err){
         console.log(err.responseJSON.message)

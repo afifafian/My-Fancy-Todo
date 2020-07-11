@@ -64,7 +64,7 @@ Get all todos
 ```
 
 ## POST /todos
-Create new todo
+Create new todo (+ automatically generated QR-Code from 3rd Party API)
 
 - Request Header:
 ```json
