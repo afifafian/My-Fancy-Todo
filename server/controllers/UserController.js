@@ -4,6 +4,7 @@ const {User} = require('../models')
 const bcrypt = require('bcrypt')
 const {jwtSign,jwtVerify} = require('../helpers/jwt')
 const {OAuth2Client} = require('google-auth-library');
+const sendEmail = require('../helpers/mailgun')
 
 class UserController {
     static register (req, res, next) {
@@ -14,6 +15,9 @@ class UserController {
         }
         User.create(newUser)
         .then(function(data){
+            let subject = `Successfully Registered to Fancy Todo!`
+            let text = `Welcome ${data.email} to Fancy Todo App!\nNow let's create your own todo list to be more fancy than ever!\nHave a good day!\n\nCheers,\nFancy Todo App Team.`
+            sendEmail(data.email, subject, text)
             return res.status(201).json(data)
         })
         .catch(function(err){
@@ -70,14 +74,15 @@ class UserController {
                 return user
             } else {
                 let dataUser = {
-                    username: payload['name'],
+                    name: payload['name'],
                     email: payload['email'],
-                    password: "bvejvbejb"
+                    password: "password123"
                 }
                 return User.create(dataUser)
             }
         })
         .then(function(data){
+            console.log(data)
             const token = jwtSign({ id: data.id, email: data.email})
             return res.status(200).json({access_token: token})
         })

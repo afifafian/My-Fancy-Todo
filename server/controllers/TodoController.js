@@ -1,7 +1,7 @@
 "use strict"
 
 const {Todo} = require('../models')
-const getQRCode = require('../helpers/thirdparty')
+const getQRCode = require('../helpers/qrcode')
 
 class TodoController {
     static addTodo (req,res, next) {
@@ -20,8 +20,8 @@ class TodoController {
             const qrCode = getQRCode(data)
             return qrCode
         })
-        .then(function(result){
-            return res.status(201).json({result ,todo})
+        .then(function(resultQR){
+            return res.status(201).json({resultQR ,todo})
         })
         .catch(function(err){
             next(err)
@@ -75,7 +75,7 @@ class TodoController {
                 throw {
                     name: "Validation_error",
                     statusCode: 404,
-                    message: `Book not found!`
+                    message: `Todo not found!`
                 }
             }
         })
